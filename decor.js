@@ -479,15 +479,6 @@ function findMid(pt1,pt2) {
      }
 } /* end findMid */
 
-
-
-
-
-
-
-
-
-
 function compare(vert1, vert2) {
 if (JSON.stringify(vert1[0])===JSON.stringify(vert2[0])) {/*alert([vert1,vert2])*/};
 
@@ -509,8 +500,6 @@ if (JSON.stringify(vert1[0])===JSON.stringify(vert2[0])) {/*alert([vert1,vert2])
   }
   return trade;
 }
-
-
 
 function txtToFile(content, filename, contentType) {
   const a = document.createElement('a');
@@ -686,7 +675,7 @@ function drawStars(context) {
       for (j = -2;j<5;j++) {
         context.beginPath();
         context.strokeStyle ="black";
-        context.fillStyle = "white";
+        context.fillStyle = "purple";
         var newPoint = star[0];
         context.moveTo(
          (newPoint[0]+200+i*Ax+j*Bx)*sized,
@@ -700,13 +689,11 @@ function drawStars(context) {
         });
         context.closePath();
         context.fill();
-        context.stroke();
+    //    context.stroke();
       } /* end j loop */
     } /* end i loop */
   });
 } /* end drawStars */
-
-
 
 function draw() {
   var getMode = document.querySelector('input[name="mode"]:checked');  
