@@ -650,11 +650,13 @@ function drawTiles(context) {
 
 
 function drawStars(context) {
-  var star;
   tiles.polys.forEach(function(poly) {
-    var nStarAngle=Math.PI*1/3;
+
+    var slider = document.getElementById("myRange");
+    var nStarAngle=Math.PI/180*slider.value;
+
     var center = avePtMap(poly);
-    star = [];
+    var star = [];
     var n = poly.length;
     var lastPt = poly[n-1];
     var R = 1/(2*Math.sin(Math.PI/n));
@@ -708,5 +710,12 @@ function draw() {
   if (getMode.value === "tiles") {drawTiles(context);}
   if (getMode.value === "stars") {drawStars(context);}
 
+  var slider = document.getElementById("myRange");
+  var output = document.getElementById("demo");
+  output.innerHTML = slider.value;
+
+  slider.oninput = function() {
+    output.innerHTML = this.value;
+  }
 
 }
