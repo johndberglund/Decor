@@ -29,7 +29,7 @@ function init() {
   curPoly = [];
   polyList = [];
   mode = 0;
-  hexagons();
+  squares();
 
   var d = document.getElementById("canvasDiv");
   d.style.maxHeight= window.innerHeight-170 + "px";
@@ -46,11 +46,6 @@ function resize() {
   d.style.maxWidth= window.innerWidth-170 + "px";
   draw(); 
 }
-
-
-
-
-
 
 function mapping(rawPt, mapping) {
   var X = rawPt[0]+mapping[0]*Ax + mapping[1]*Bx;
@@ -307,22 +302,6 @@ function polys2halfkiteDegs() {
   return(halfkiteDegs);
 }
 
-function tri() {
-  tiles.polys = polys2halfkites();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "t";
-  draw();
-}
-
 function polys2kites() {
   var halfkites = polys2halfkites();
   var newHalfkites = [];
@@ -385,22 +364,6 @@ if (orient < 0) {oldVert2 = halfkite[1];oldVert1=halfkite[2];}
   return(kites);
 
 } /* end polys2kites */
-
-function quadd() {
-  tiles.polys=polys2kites();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "q";
-  draw();
-}
 
 function dualKites(kites) {
   var newKites = [];
@@ -488,30 +451,6 @@ function makePoly(halfkites) {
   return(poly);
 } /* end makePoly */
 
-function dual() {
-
-  dualNoDraw();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "d";
-
-  draw();
-} /* end dual */
-
-function dualNoDraw() {
-  var kites = polys2kites();
-  kites = dualKites(kites);
-  var halfkites = kites2halfkites(kites);
-  tiles.polys =halfkites2polys(halfkites);
-} /* end dualNoDraw*/
 
 function findMid(pt1,pt2) {
   /* makes copies */
@@ -540,236 +479,12 @@ function findMid(pt1,pt2) {
      }
 } /* end findMid */
 
-function pentafill() {
-  var polys = [];
-  var halfkites = [];
-  midpoints = [];
-  var kites = polys2kites();
-
-  kites.forEach(function(kite) {
-    var C1 = kite[0];
-    var V1 = kite[1];
-    var C2 = kite[2];
-    var V2 = kite[3];
-
-    var A1 = findMid(C1,V1);
-    var A2 = findMid(C1,V2);
-    var A3 = findMid(C2,V1);
-    var A4 = findMid(C2,V2);
-
-    var B1 = findMid(A1,A2);
-    var B2 = findMid(A3,A4);
-
-    polys.push([V1,A1,B1,B2,A3]);
-    polys.push([V2,A2,B1,B2,A4]);
-    halfkites.push([C1,A1,B1]);
-    halfkites.push([C1,A2,B1]);
-    halfkites.push([C2,A3,B2]);
-    halfkites.push([C2,A4,B2]);
-  });
-
-  var newPolys = halfkites2polys(halfkites);
-  polys = polys.concat(newPolys);
-  tiles.polys=polys;
-
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "f";
-  draw();
-
-} /* end pentafill */
 
 
 
-function penta() {
-  var polys = [];
-  var halfkites = [];
-  midpoints = [];
-  var kites = polys2kites();
-
-  kites.forEach(function(kite) {
-    var C1 = kite[0];
-    var V1 = kite[1];
-    var C2 = kite[2];
-    var V2 = kite[3];
-
-    var A1 = findMid(C1,V1);
-    var A2 = findMid(C1,V2);
-    var A3 = findMid(C2,V1);
-    var A4 = findMid(C2,V2);
-
-    var B1 = findMid(C1,A3);
-    var B2 = findMid(C2,A2);
-
-    halfkites.push([A1,V1,B1]);
-    halfkites.push([A1,B1,C1]);
-    halfkites.push([A2,C1,B1]);
-    halfkites.push([A2,B1,B2]);
-    halfkites.push([A2,B2,V2]);
-    halfkites.push([A3,C2,B2]);
-    halfkites.push([A3,B2,B1]);
-    halfkites.push([A3,B1,V1]);
-    halfkites.push([A4,V2,B2]);
-    halfkites.push([A4,B2,C2]);
-  });
-
-  var newPolys = halfkites2polys(halfkites);
-  polys = polys.concat(newPolys);
-  tiles.polys=polys;
-/*
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "p";
-*/
-  draw();
-
-} /* end penta */
 
 
-function hexfill() {
-  var polys = [];
-  var newHalfkites = [];
-  midpoints = [];
-  var halfkiteDegs = polys2halfkiteDegs();
 
-  halfkiteDegs.forEach(function(halfkiteDeg) {
-    var C1 = halfkiteDeg[0];
-    var V1 = halfkiteDeg[1];
-    var V2 = halfkiteDeg[2];
-    var degree = halfkiteDeg[3];
-
-    if (degree <=4) {    
-      var A1 = findMid(V1,V2);
-      newHalfkites.push([A1,V2,C1]);
-      newHalfkites.push([A1,C1,V1]);
-    };
-    if (degree >4 && degree < 7) {
-      var A1 = findMid(V1,V2);
-      var A2 = findMid(C1,V1);
-      var A3 = findMid(C1,V2);
-      var A4 = findMid(A2,A3);
-      newHalfkites.push([A1,V1,A4]);
-      newHalfkites.push([A1,A4,V2]);
-      newHalfkites.push([A2,C1,A4]);
-      newHalfkites.push([A2,A4,V1]);
-      newHalfkites.push([A3,V2,A4]);
-      newHalfkites.push([A3,A4,C1]);
-    };
-    if (degree >=7) {
-      var A1 = findMid(V1,V2);
-      var A2 = findMid(C1,V1);
-      var A3 = findMid(C1,V2);
-      var A4 = findMid(A2,A3);
-
-      polys.push([V1,C1,A4]);
-      polys.push([V2,C1,A4]);
-      newHalfkites.push([A1,V2,A4]);
-      newHalfkites.push([A1,A4,V1]);
-    };
-
-  });
-
-  var newPolys = halfkites2polys(newHalfkites);
-  polys = polys.concat(newPolys);
-  tiles.polys=polys;
-  dual();
-/*
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-*/
-  comList += "h";
-
-  draw();
-
-} /* end hexfill */
-
-
-function hex2fill() {
-  var polys = [];
-  var newHalfkites = [];
-  midpoints = [];
-  var halfkiteDegs = polys2halfkiteDegs();
-
-  halfkiteDegs.forEach(function(halfkiteDeg) {
-    var C1 = halfkiteDeg[0];
-    var V1 = halfkiteDeg[1];
-    var V2 = halfkiteDeg[2];
-    var degree = halfkiteDeg[3];
-
-    if (degree <=4) {    
-      var A1 = findMid(V1,V2);
-      newHalfkites.push([A1,V1,C1]);
-      newHalfkites.push([A1,C1,V2]);
-    };
-    if (degree >4 && degree < 8) {
-      var A1 = findMid(V1,V2);
-      var A2 = findMid(C1,V1);
-      var A3 = findMid(C1,V2);
-      var A4 = findMid(A2,A3);
-      newHalfkites.push([A1,V1,A4]);
-      newHalfkites.push([A1,A4,V2]);
-      newHalfkites.push([A2,C1,A4]);
-      newHalfkites.push([A2,A4,V1]);
-      newHalfkites.push([A3,V2,A4]);
-      newHalfkites.push([A3,A4,C1]);
-    };
-    if (degree >=8) {
-      var A1 = findMid(V1,V2);
-      var A2 = findMid(C1,V1);
-      var A3 = findMid(C1,V2);
-      var A4 = findMid(A2,A3);
-
-      polys.push([V1,C1,A4]);
-      polys.push([C1,V2,A4]);
-      newHalfkites.push([A1,V1,A4]);
-      newHalfkites.push([A1,A4,V2]);
-    };
-
-  });
-
-  var newPolys = halfkites2polys(newHalfkites);
-  polys = polys.concat(newPolys);
-  tiles.polys=polys;
-  dual();
-
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  makeRegular();
-  comList += "h2";
-  draw();
-
-} /* end hex2fill */
 
 
 
@@ -875,31 +590,6 @@ function squares() {
   Ay=0;
   Bx=0;
   By=Ax;
-  comList = "S";
-  draw();
-}
-
-/* init triangle tiling */
-function triangles() {
-  tiles.pts = [[2,1]];
-  tiles.polys = [
-    [[0,[0,0]],[0,[0,1]],[0,[1,0]]],
-    [[0,[1,0]],[0,[0,1]],[0,[1,1]]]
-  ];
-  var size = window.innerHeight-15;
-  if (size > window.innerWidth - 200) {size = window.innerWidth - 200};
-  Ax=size/1.8-10;
-  Ay=0;
-  Bx=Ax/2;
-  By=Bx*Math.sqrt(3);
-  comList = "T";
-}
-
-/* init hexagon tiling */
-function hexagons() {
-  triangles();
-  dual();
-  comList = "H";
   draw();
 }
 
@@ -921,7 +611,7 @@ function loadTiling() {
     for (i = 1;i<curLen;i++) {
       if (lines[i] === "points:") { setPoly = 1; continue;}
       if (lines[i] === "poly:") { setPoly = 2; curPoly = []; continue;}
-      if (lines[i] === "end") { comList = "["+file.name+"]"; draw(); break;}
+      if (lines[i] === "end") {  draw(); break;}
       var coords = lines[i].split(",");
       if (i===1) {Ax = coords[0],Ay=coords[1]}
       if (i===2) {Bx = coords[0],By=coords[1]}
@@ -973,7 +663,7 @@ function drawTiles(context) {
 function drawStars(context) {
   var star;
   tiles.polys.forEach(function(poly) {
-    var nStarAngle=Math.PI*1/6;
+    var nStarAngle=Math.PI*1/3;
     var center = avePtMap(poly);
     star = [];
     var n = poly.length;
