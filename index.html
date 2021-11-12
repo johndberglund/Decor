@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="menu.css">
+<script src="decor.js"></script>
+</head>
+
+<body onload="init()" onresize="resize()">
+<nav>
+<ul>
+  <li class="dropdown"><a>File</a>
+    <ul>
+      <li><a><input type="file" name="file" id="loadTiling" 
+              class="inputfile" onchange="loadTiling()" />
+        <label for="loadTiling">Load tiling</label></a>
+      <li><a onclick="goSvg()">Save SVG</a>
+      <li><a onclick="goSave()">Save tiling</a>
+    </ul>
+  </li>
+  <li><a href="#home">Help</a></li>
+</ul>
+</nav>
+
+<div style="float:left; width:140px;">
+<form>
+<input type="radio" id="tiles" onclick="draw()" name="mode" value="tiles" checked>
+<label for="tiles" title="draw tiles">Tiles</label>
+<br>
+<input type="radio" id="stars" onclick="draw()" name="mode" value="stars">
+<label for="stars" title="draw stars">Stars</label>
+<br>
+<input type="radio" id="rosettes" onclick="draw()" name="mode" value="rosettes">
+<label for="rosettes" title="draw rosettes">Rosettes</label>
+<br>
+<input type="radio" id="extRose" onclick="draw()" name="mode" value="extRose">
+<label for="extRose" title="draw Extended Rosettes">Ext. Rosettes</label>
+<br>
+<input type="radio" id="mapIm" onclick="draw()" name="mode" value="mapIm">
+<label for="mapIm" title="draw a mapping from an image">Map Image</label>
+<br>
+<input type="radio" id="weave" onclick="draw()" name="mode" value="weave">
+<label for="weave" title="draw weave">Weave</label>
+<br>
+</form>
+</div>
+
+<div id="canvasDiv" style="max-height: 300px; max-width:256px; overflow: auto; border:3px solid red">
+<canvas id="myCanvas"  style="border:1px solid black;"> </canvas>
+</div>
+</body>
+</html>
+
