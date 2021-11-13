@@ -21,6 +21,8 @@ var polyList = [];
 var myTiling;
 var sized=1;
 
+var star;
+
 function init() {
   sized=1;
   xOffset=0;
@@ -543,8 +545,15 @@ function svgToFile(content, filename, contentType) {
 
 
 function goSvg() {
-  var asOutput = '<svg height="600" width="600">\r\n';
-  tiles.polys.forEach(function(poly) {
+  var getMode = document.querySelector('input[name="mode"]:checked');  
+  if (getMode.value === "tiles") {goSVG2(tiles.polys);}
+  if (getMode.value === "stars") {goSVG3();}
+}
+
+// ptMap list
+function goSVG2(shapes) {
+ var asOutput = '<svg height="600" width="600">\r\n';
+  shapes.forEach(function(poly) {
     for (i = 0;i<3;i++) {
       for (j = 0;j<3;j++) {
         asOutput = asOutput.concat('<polygon points="\r\n'); 
@@ -560,6 +569,48 @@ function goSvg() {
   asOutput = asOutput.concat('</svg>');
   svgToFile(asOutput,"myTiles","svg");
 }
+
+// raw point list
+function goSVG3() {
+  var asOutput = '<svg height="600" width="600">\r\n';
+  var slider = document.getElementById("myRange");
+  var nStarAngle=Math.PI/180*slider.value;
+
+  tiles.polys.forEach(function(poly) {
+    var center = avePtMap(poly);
+    star = [];
+    var n = poly.length;
+    var lastPt = poly[n-1];
+    var R = 1/(2*Math.sin(Math.PI/n));
+    var H = 1/(2*Math.tan(Math.PI/n));
+    var vertWt = H*Math.sin(nStarAngle/2)/Math.sin(Math.PI-nStarAngle/2-Math.PI/n);
+    var centWt = R - vertWt;
+    poly.forEach(function(point) {     
+      var midPt = avePtMap([point, lastPt]);
+      star.push(midPt);
+      var rawPoint = mapping(tiles.pts[point[0]],point[1]);
+      var newPt = weightPts(center,centWt,rawPoint,vertWt);
+      star.push(newPt);
+
+      lastPt = point;      
+    });
+
+    for (i = -2;i<5;i++) {
+      for (j = -2;j<5;j++) {
+     
+        asOutput = asOutput.concat('<polygon points="\r\n'); 
+        star.forEach(function(rawPoint) {
+          var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+          asOutput = asOutput.concat(sPoint);
+        });
+        asOutput = asOutput.concat('" style="fill:purple;stroke:none;stroke-width:0" />\r\n'); 
+
+      } /* end j loop */
+    } /* end i loop */
+  });
+  asOutput = asOutput.concat('</svg>');
+  svgToFile(asOutput,"myTiles","svg");
+} /* end goSVG3 */
 
 
 /* init square tiling */
@@ -656,7 +707,7 @@ function drawStars(context) {
     var nStarAngle=Math.PI/180*slider.value;
 
     var center = avePtMap(poly);
-    var star = [];
+    star = [];
     var n = poly.length;
     var lastPt = poly[n-1];
     var R = 1/(2*Math.sin(Math.PI/n));
