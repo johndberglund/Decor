@@ -595,8 +595,8 @@ function goSVG3() {
       lastPt = point;      
     });
 
-    for (i = -2;i<5;i++) {
-      for (j = -2;j<5;j++) {
+    for (i = 0;i<3;i++) {
+      for (j = 0;j<3;j++) {
      
         asOutput = asOutput.concat('<polygon points="\r\n'); 
         star.forEach(function(rawPoint) {
@@ -703,8 +703,8 @@ function drawTiles(context) {
 function drawStars(context) {
   tiles.polys.forEach(function(poly) {
 
-    var slider = document.getElementById("myRange");
-    var nStarAngle=Math.PI/180*slider.value;
+    var myAngle = document.getElementById("demo").innerHTML;
+    var nStarAngle=Math.PI/180*myAngle;
 
     var center = avePtMap(poly);
     star = [];
@@ -767,6 +767,17 @@ function draw() {
 
   slider.oninput = function() {
     output.innerHTML = this.value;
+  var getMode = document.querySelector('input[name="mode"]:checked');  
+  var c = document.getElementById("myCanvas");
+  var context = c.getContext("2d");
+
+      if (getMode.value === "stars") {
+  c.height = window.innerHeight-135;
+  c.width = window.innerWidth-195;
+  context.rect(0,0,c.width,c.height);
+  context.fillStyle = "white";
+  context.fill();
+drawStars(context);}
   }
 
 }
