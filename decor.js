@@ -570,7 +570,7 @@ function goSVG2(shapes) {
   svgToFile(asOutput,"myTiles","svg");
 }
 
-// raw point list
+// raw point list. Save stars.
 function goSVG3() {
   var asOutput = '<svg height="600" width="600">\r\n';
   var slider = document.getElementById("myRange");
@@ -580,6 +580,10 @@ function goSVG3() {
     var center = avePtMap(poly);
     star = [];
     var n = poly.length;
+        var red = 80*(1+n-3*Math.round(n/3));
+        var green = 50*(1+n-5*Math.round(n/5));
+        var blue = 30*(1+n-7*Math.round(n/7));
+        var myColor = "rgb("+red+","+green+","+blue+")";
     var lastPt = poly[n-1];
     var R = 1/(2*Math.sin(Math.PI/n));
     var H = 1/(2*Math.tan(Math.PI/n));
@@ -603,8 +607,8 @@ function goSVG3() {
           var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
           asOutput = asOutput.concat(sPoint);
         });
-        asOutput = asOutput.concat('" style="fill:purple;stroke:none;stroke-width:0" />\r\n'); 
-
+        asOutput = asOutput.concat('" style="fill:');
+        asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
       } /* end j loop */
     } /* end i loop */
   });
@@ -728,7 +732,11 @@ function drawStars(context) {
       for (j = -2;j<5;j++) {
         context.beginPath();
         context.strokeStyle ="black";
-        context.fillStyle = "purple";
+   //     context.fillStyle = "purple";
+        var red = 80*(1+poly.length-3*Math.round(poly.length/3));
+        var green = 50*(1+poly.length-5*Math.round(poly.length/5));
+        var blue = 30*(1+poly.length-7*Math.round(poly.length/7));
+        context.fillStyle = "rgb("+red+","+green+","+blue+")";
         var newPoint = star[0];
         context.moveTo(
          (newPoint[0]+200+i*Ax+j*Bx)*sized,
