@@ -550,7 +550,7 @@ function goSvg() {
   if (getMode.value === "stars") {goSVG3();}
 }
 
-// ptMap list
+// ptMap list. save tiles.
 function goSVG2(shapes) {
  var asOutput = '<svg height="600" width="600">\r\n';
   shapes.forEach(function(poly) {
@@ -756,6 +756,77 @@ function drawStars(context) {
   });
 } /* end drawStars */
 
+function drawRosettes(context) {
+  tiles.polys.forEach(function(poly) {
+
+    var myAngle = document.getElementById("demo").innerHTML;
+    var nRoseAngle=Math.PI/180*myAngle;
+
+    var center = avePtMap(poly);
+    var petals = [];
+    var n = poly.length;
+    var lastPt = poly[n-1];
+var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+var H = Math.cos(Math.PI/n);
+var ratio = Math.sin(Math.PI/n)/Math.sin(Math.PI/n+nRoseAngle/2);
+var B = ratio*Math.sin(Math.PI/2-nRoseAngle/2);
+var A = ratio*Math.sin(Math.PI/2-Math.PI/n);
+var X = H*A/(H+A);
+var C = X*(1-B)/A;
+var D = C/2/H;
+
+    poly.forEach(function(point) {     
+      var Pt1 = avePtMap([point, lastPt]);
+      var petals = [];
+      petals.push(Pt1);
+      var rawPt = mapping(tiles.pts[point[0]],point[1]);
+      var tempPt1 = weightPts(center,B,rawPt,1-B);
+      var Pt2 = weightPts(tempPt1,X,Pt1,A-X);
+      petals.push(Pt2);
+      var Pt3 = weightPts(rawPt,C,center,1-C);
+      petals.push(Pt3);   
+      var Pt4 = weightPts(Pt1,D,center,H-D);
+      petals.push(Pt4);
+      var Pt5 = weightPts(lastRawPt,C,center,1-C);
+      petals.push(Pt5);
+      var tempPt2 = weightPts(center,B,lastRawPt,1-B);
+      var Pt6 = weightPts(tempPt2,X,Pt1,A-X);
+      petals.push(Pt6);
+      lastPt = point;  
+      lastRawPt = rawPt;  
+
+      for (i = -2;i<5;i++) {
+        for (j = -2;j<5;j++) {
+          context.beginPath();
+          context.strokeStyle ="black";
+      //    context.fillStyle = "purple";
+          var red = 80*(1+poly.length-3*Math.round(poly.length/3));
+          var green = 50*(1+poly.length-5*Math.round(poly.length/5));
+          var blue = 30*(1+poly.length-7*Math.round(poly.length/7));
+          context.fillStyle = "rgb("+red+","+green+","+blue+")";
+          var newPoint = petals[0];
+          context.moveTo(
+           (newPoint[0]+200+i*Ax+j*Bx)*sized,
+           (newPoint[1]+15+i*Ay+j*By)*sized
+          );
+          petals.forEach(function(point) {
+            context.lineTo(
+             (point[0]+200+i*Ax+j*Bx)*sized,
+             (point[1]+15+i*Ay+j*By)*sized
+            );	
+          });
+          context.closePath();
+          context.fill();
+      //    context.stroke();
+        } /* end j loop */
+      } /* end i loop */
+
+    }); // end point loop
+
+  }); // end poly loop
+} /* end drawRosettes */
+
+
 function draw() {
   var getMode = document.querySelector('input[name="mode"]:checked');  
   var c = document.getElementById("myCanvas");
@@ -768,6 +839,7 @@ function draw() {
   context.lineWidth =1;
   if (getMode.value === "tiles") {drawTiles(context);}
   if (getMode.value === "stars") {drawStars(context);}
+  if (getMode.value === "rosettes") {drawRosettes(context);}
 
   var slider = document.getElementById("myRange");
   var output = document.getElementById("demo");
@@ -775,17 +847,26 @@ function draw() {
 
   slider.oninput = function() {
     output.innerHTML = this.value;
-  var getMode = document.querySelector('input[name="mode"]:checked');  
-  var c = document.getElementById("myCanvas");
-  var context = c.getContext("2d");
+    var getMode = document.querySelector('input[name="mode"]:checked');  
+    var c = document.getElementById("myCanvas");
+    var context = c.getContext("2d");
 
-      if (getMode.value === "stars") {
-  c.height = window.innerHeight-135;
-  c.width = window.innerWidth-195;
-  context.rect(0,0,c.width,c.height);
-  context.fillStyle = "white";
-  context.fill();
-drawStars(context);}
+    if (getMode.value === "stars") {
+      c.height = window.innerHeight-135;
+      c.width = window.innerWidth-195;
+      context.rect(0,0,c.width,c.height);
+      context.fillStyle = "white";
+      context.fill();
+      drawStars(context);
+    }
+    if (getMode.value === "rosettes") {
+      c.height = window.innerHeight-135;
+      c.width = window.innerWidth-195;
+      context.rect(0,0,c.width,c.height);
+      context.fillStyle = "white";
+      context.fill();
+      drawRosettes(context);
+    }
   }
 
 }
