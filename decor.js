@@ -546,12 +546,14 @@ function svgToFile(content, filename, contentType) {
 
 function goSvg() {
   var getMode = document.querySelector('input[name="mode"]:checked');  
-  if (getMode.value === "tiles") {goSVG2(tiles.polys);}
-  if (getMode.value === "stars") {goSVG3();}
+  if (getMode.value === "tiles") {SVGpolys(tiles.polys);}
+  if (getMode.value === "stars") {SVGstars();}
+  if (getMode.value === "rosettes") {SVGrosettes();}
+  if (getMode.value === "extRoses") {SVGextRoses();}
 }
 
 // ptMap list. save tiles.
-function goSVG2(shapes) {
+function SVGpolys(shapes) {
  var asOutput = '<svg height="600" width="600">\r\n';
   shapes.forEach(function(poly) {
     for (i = 0;i<3;i++) {
@@ -568,10 +570,10 @@ function goSVG2(shapes) {
   });
   asOutput = asOutput.concat('</svg>');
   svgToFile(asOutput,"myTiles","svg");
-}
+} // end SVGpolys()
 
 // raw point list. Save stars.
-function goSVG3() {
+function SVGstars() {
   var asOutput = '<svg height="600" width="600">\r\n';
   var slider = document.getElementById("myRange");
   var nStarAngle=Math.PI/180*slider.value;
@@ -614,7 +616,199 @@ function goSVG3() {
   });
   asOutput = asOutput.concat('</svg>');
   svgToFile(asOutput,"myTiles","svg");
-} /* end goSVG3 */
+} /* end SVGstars */
+
+function SVGrosettes() {
+  var asOutput = '<svg height="600" width="600">\r\n';
+  var myAngle = document.getElementById("demo").innerHTML;
+  var nRoseAngle=Math.PI/180*myAngle;
+
+  tiles.polys.forEach(function(poly) {
+    var n = poly.length;
+    var red = 80*(1+n-3*Math.round(n/3));
+    var green = 50*(1+n-5*Math.round(n/5));
+    var blue = 30*(1+n-7*Math.round(n/7));
+    var myColor = "rgb("+red+","+green+","+blue+")";
+    var lastPt = poly[n-1];
+    var center = avePtMap(poly);
+    if (n<5) {
+      var newPoly = [];
+      var R = 1/(2*Math.sin(Math.PI/n));
+      var H = 1/(2*Math.tan(Math.PI/n));
+      var vertWt = H*Math.sin(nRoseAngle/2)/Math.sin(Math.PI-nRoseAngle/2-Math.PI/n);
+      var centWt = R - vertWt;
+      poly.forEach(function(point) {     
+        var midPt = avePtMap([point, lastPt]);
+        newPoly.push(midPt);
+        var rawPoint = mapping(tiles.pts[point[0]],point[1]);
+        var newPt = weightPts(center,centWt,rawPoint,vertWt);
+        newPoly.push(newPt);
+        lastPt = point;      
+      });
+      for (i = 0;i<3;i++) {
+        for (j = 0;j<3;j++) {     
+          asOutput = asOutput.concat('<polygon points="\r\n'); 
+          newPoly.forEach(function(rawPoint) {
+            var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+            asOutput = asOutput.concat(sPoint);
+          });
+          asOutput = asOutput.concat('" style="fill:');
+          asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
+        } /* end j loop */
+      } /* end i loop */
+    } // end n<5
+    else {
+      var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+      var H = Math.cos(Math.PI/n);
+      var ratio = Math.sin(Math.PI/n)/Math.sin(Math.PI/n+nRoseAngle/2);
+      var B = ratio*Math.sin(Math.PI/2-nRoseAngle/2);
+      var A = ratio*Math.sin(Math.PI/2-Math.PI/n);
+      var X = H*A/(H+A);
+      var C = X*(1-B)/A;
+      var D = C/2/H;
+
+      poly.forEach(function(point) {     
+        var Pt1 = avePtMap([point, lastPt]);
+        var petals = [];
+        petals.push(Pt1);
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);
+        var tempPt1 = weightPts(center,B,rawPt,1-B);
+        var Pt2 = weightPts(tempPt1,X,Pt1,A-X);
+        petals.push(Pt2);
+        var Pt3 = weightPts(rawPt,C,center,1-C);
+        petals.push(Pt3);   
+        var Pt4 = weightPts(Pt1,D,center,H-D);
+        petals.push(Pt4);
+        var Pt5 = weightPts(lastRawPt,C,center,1-C);
+        petals.push(Pt5);
+        var tempPt2 = weightPts(center,B,lastRawPt,1-B);
+        var Pt6 = weightPts(tempPt2,X,Pt1,A-X);
+        petals.push(Pt6);
+        lastPt = point;  
+        lastRawPt = rawPt;  
+  
+        for (i = 0;i<3;i++) {
+          for (j = 0;j<3;j++) {
+            asOutput = asOutput.concat('<polygon points="\r\n'); 
+            petals.forEach(function(rawPoint) {
+              var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+              asOutput = asOutput.concat(sPoint);
+            });
+            asOutput = asOutput.concat('" style="fill:');
+            asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
+          } /* end j loop */
+        } /* end i loop */
+      }); // end point loop
+    } // end n>=5
+  }); // end poly loop
+  asOutput = asOutput.concat('</svg>');
+  svgToFile(asOutput,"myTiles","svg");
+} /* end SVGrosettes */
+
+function SVGextRoses() {
+  var asOutput = '<svg height="600" width="600">\r\n';
+  var myAngle = document.getElementById("demo").innerHTML;
+  var nRoseAngle=Math.PI/180*myAngle;
+
+  tiles.polys.forEach(function(poly) {
+    var n = poly.length;
+    var red = 80*(1+n-3*Math.round(n/3));
+    var green = 50*(1+n-5*Math.round(n/5));
+    var blue = 30*(1+n-7*Math.round(n/7));
+    var myColor = "rgb("+red+","+green+","+blue+")";
+    var lastPt = poly[n-1];
+    var center = avePtMap(poly);
+    if (n<5) {
+      var newPoly = [];
+      var R = 1/(2*Math.sin(Math.PI/n));
+      var H = 1/(2*Math.tan(Math.PI/n));
+      var vertWt = H*Math.sin(nRoseAngle/2)/Math.sin(Math.PI-nRoseAngle/2-Math.PI/n);
+      var centWt = R - vertWt;
+      poly.forEach(function(point) {     
+        var midPt = avePtMap([point, lastPt]);
+        newPoly.push(midPt);
+        var rawPoint = mapping(tiles.pts[point[0]],point[1]);
+        var newPt = weightPts(center,centWt,rawPoint,vertWt);
+        newPoly.push(newPt);
+        lastPt = point;      
+      });
+      for (i = 0;i<3;i++) {
+        for (j = 0;j<3;j++) {     
+          asOutput = asOutput.concat('<polygon points="\r\n'); 
+          newPoly.forEach(function(rawPoint) {
+            var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+            asOutput = asOutput.concat(sPoint);
+          });
+          asOutput = asOutput.concat('" style="fill:');
+          asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
+        } /* end j loop */
+      } /* end i loop */
+    } // end n<5
+    else {
+      var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+      var H = Math.cos(Math.PI/n);
+      var B = Math.sin(Math.PI/n)/Math.sin(Math.PI/n+nRoseAngle/2)*Math.sin(Math.PI/2-nRoseAngle/2);
+      var ratio = (1-B)/Math.sin(Math.PI-2*Math.PI/n-nRoseAngle/2);
+      var E = ratio*Math.sin(Math.PI/n);
+      var G = ratio*Math.sin(Math.PI/n+nRoseAngle/2);
+      var F = E*(1-B)/(E+1-B);
+      var I = F*G/E;
+      var J =I/2/H;
+      var star = [];
+
+      poly.forEach(function(point) {     
+        var Pt1 = avePtMap([point, lastPt]);
+        var petals = [];
+        petals.push(Pt1);
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);
+        var Pt2 = weightPts(center,B,rawPt,1-B);
+        petals.push(Pt2);
+        var tempPt = weightPts(Pt1,G,center,H-G);
+        var Pt3 = weightPts(tempPt,F,Pt2,E-F);
+        petals.push(Pt3);   
+        var Pt4 = weightPts(Pt1,I,center,H-I);
+        petals.push(Pt4);
+        var Pt6 = weightPts(center,B,lastRawPt,1-B);
+        var Pt5 = weightPts(tempPt,F,Pt6,E-F);
+        petals.push(Pt5);
+        petals.push(Pt6);
+        var Pt7 = weightPts(rawPt,J,center,1-J);
+        star.push(Pt4);
+        star.push(Pt7);
+        lastPt = point;  
+        lastRawPt = rawPt;  
+
+        // draw external polygon
+        for (i = 0;i<3;i++) {
+          for (j = 0;j<3;j++) {
+            asOutput = asOutput.concat('<polygon points="\r\n'); 
+            petals.forEach(function(rawPoint) {
+              var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+              asOutput = asOutput.concat(sPoint);
+            });
+            asOutput = asOutput.concat('" style="fill:');
+            asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
+          } /* end j loop */
+        } /* end i loop */
+      }); // end point loop
+
+      // draw central star
+      for (i = 0;i<3;i++) {
+        for (j = 0;j<3;j++) {
+          asOutput = asOutput.concat('<polygon points="\r\n'); 
+          star.forEach(function(rawPoint) {
+            var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+            asOutput = asOutput.concat(sPoint);
+          });
+          asOutput = asOutput.concat('" style="fill:');
+          asOutput = asOutput.concat(myColor+';stroke:none;stroke-width:0" />\r\n'); 
+        } /* end j loop */
+      } /* end i loop */
+    } // end n>=5
+  }); // end poly loop
+  asOutput = asOutput.concat('</svg>');
+  svgToFile(asOutput,"myTiles","svg");
+} /* end SVGextRoses */
 
 
 /* init square tiling */
@@ -702,7 +896,6 @@ function drawTiles(context) {
     } /* end i loop */
   });
 } /* end drawTiles */
-
 
 function drawStars(context) {
   tiles.polys.forEach(function(poly) {
