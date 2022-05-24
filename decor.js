@@ -1219,47 +1219,54 @@ function drawWeave(context) {
           } /* end j loop */
         } /* end i loop */
       }); /* end point loop */
-
     } //end n < 5
     else {
       var lastPt = poly[n-1];
       var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
       var A = Math.cos(2*Math.PI/n);
       var lastPt1 = weightPts(center,1-A,lastRawPt,A);
+      var newPoly = [];
       poly.forEach(function(point) {    
         var rawPt = mapping(tiles.pts[point[0]],point[1]);
         var Pt1 = weightPts(center,1-A,rawPt,A);
         var Pt2 = avePts([lastPt1, rawPt]);
-
+        newPoly.push(Pt2);
         for (i = -2;i<5;i++) {
-
           for (j = -2;j<5;j++) {
             context.moveTo(
-              (lastPt1[0]+200+i*Ax+j*Bx)*sized,
-              (lastPt1[1]+15+i*Ay+j*By)*sized
+              (Pt2[0]+200+i*Ax+j*Bx)*sized,
+              (Pt2[1]+15+i*Ay+j*By)*sized
             );
             context.lineTo(
               (rawPt[0]+200+i*Ax+j*Bx)*sized,
               (rawPt[1]+15+i*Ay+j*By)*sized
             );
             context.stroke();
-            context.moveTo(
-              (Pt1[0]+200+i*Ax+j*Bx)*sized,
-              (Pt1[1]+15+i*Ay+j*By)*sized
-            );
-            context.lineTo(
-              (Pt2[0]+200+i*Ax+j*Bx)*sized,
-              (Pt2[1]+15+i*Ay+j*By)*sized
-            );
-            context.stroke();
           } /* end j loop */
-
         } /* end i loop */
         lastPt1 = Pt1;
-        lastRawPt = rawPt;
+      }); // end poly loop
+      for (i = -2;i<5;i++) {
+        for (j = -2;j<5;j++) {
+          context.beginPath();
+          context.strokeStyle ="black";
+          lastPt = newPoly[n-1];
+          context.moveTo(
+            (lastPt[0]+200+i*Ax+j*Bx)*sized,
+            (lastPt[1]+15+i*Ay+j*By)*sized
+          );
+          newPoly.forEach(function(point) {
+            context.lineTo(
+              (point[0]+200+i*Ax+j*Bx)*sized,
+              (point[1]+15+i*Ay+j*By)*sized
+            );
 
-      }); // end point loop
+          }); // end newPoly loop
+          context.closePath();
+          context.stroke();
 
+        } /* end j loop */
+      } /* end i loop */
     }; //end n >=5
   }); // end poly loop
 } /* end drawWeave */
