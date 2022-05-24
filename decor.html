@@ -25,35 +25,35 @@
 </nav>
 
 <div style="float:left; width:140px;">
-<form>
-<input type="radio" id="tiles" onclick="draw()" name="mode" value="tiles" checked>
-<label for="tiles" title="draw tiles">Tiles</label>
-<br>
-<input type="radio" id="stars" onclick="draw()" name="mode" value="stars">
-<label for="stars" title="draw stars">Stars</label>
-<br>
-<input type="radio" id="rosettes" onclick="draw()" name="mode" value="rosettes">
-<label for="rosettes" title="draw rosettes">Rosettes</label>
-<br>
-<input type="radio" id="extRose" onclick="draw()" name="mode" value="extRoses">
-<label for="extRose" title="draw Extended Rosettes">Ext. Rosettes</label>
-<br>
-<input type="radio" id="mapIm" onclick="draw()" name="mode" value="mapIm">
-<label for="mapIm" title="draw a mapping from an image">Map Image</label>
-<br>
-<input type="radio" id="weave" onclick="draw()" name="mode" value="weave">
-<label for="weave" title="draw weave">Weave</label>
-<br>
-</form>
-<div class="slidecontainer">
+ <form>
+ <input type="radio" id="tiles" onclick="draw()" name="mode" value="tiles" checked>
+ <label for="tiles" title="draw tiles">Tiles</label>
+ <br>
+ <input type="radio" id="stars" onclick="draw()" name="mode" value="stars">
+ <label for="stars" title="draw stars">Stars</label>
+ <br>
+ <input type="radio" id="rosettes" onclick="draw()" name="mode" value="rosettes">
+ <label for="rosettes" title="draw rosettes">Rosettes</label>
+ <br>
+ <input type="radio" id="extRose" onclick="draw()" name="mode" value="extRoses">
+ <label for="extRose" title="draw Extended Rosettes">Ext. Rosettes</label>
+ <br>
+ <input type="radio" id="mapIm" onclick="draw()" name="mode" value="mapIm">
+ <label for="mapIm" title="draw a mapping from an image">Map Image</label>
+ <br>
+ <input type="radio" id="weave" onclick="draw()" name="mode" value="weave">
+ <label for="weave" title="draw weave">Weave</label>
+ <br>
+ </form>
+ <div class="slidecontainer">
   <input type="range" min="15" max="165" value="60" step="15" class="slider" oninput="draw()" id="myRange">
   <br>
-Angle: <span id="demo" onchange="draw()"></span>
+  Angle: <span id="demo" onchange="draw()"></span>
+ </div>
 </div>
-
-
+<div id="canvasDiv0" style="float:left; max-height: 300px; width:140px; overflow: auto; border:3px solid red">
+<canvas id="myCanvas0"  style="border:1px solid black;"> </canvas>
 </div>
-
 <div id="canvasDiv" style="max-height: 300px; max-width:256px; overflow: auto; border:3px solid red">
 <canvas id="myCanvas"  style="border:1px solid black;"> </canvas>
 </div>

@@ -20,6 +20,7 @@ var pointList = [];
 var polyList = [];
 var myTiling;
 var sized=1;
+var img;
 
 var star;
 
@@ -1272,26 +1273,120 @@ function drawWeave(context) {
 } /* end drawWeave */
 
 function drawMapIm(context) {
+  var c0 = document.getElementById("myCanvas0");
+  var context0 = c0.getContext("2d");
+  var w=img.width;
+  var h=img.height;
+  context0.drawImage(img,0,0,w,h);
+  var x1=10;
+  var y1=30;
+  var x2=60;
+  var y2=5;
+  var x3=60;
+  var y3=60;
+  context0.beginPath();
+  context0.moveTo(x1,y1);
+  context0.lineTo(x2,y2);
+  context0.lineTo(x3,y3);
+  context0.closePath();
+  context0.strokeStyle="#000";
+  context0.stroke();
+
+  tiles.polys.forEach(function(poly) {
+    var center = avePtMap(poly);
+    var X1 = center[0];
+    var Y1 = center[1];
+    var n = poly.length;
+    var lastPt = poly[n-1];
+    var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);  
+    poly.forEach(function(point) {  
+      var rawPt = mapping(tiles.pts[point[0]],point[1]);  
+      var midPt = avePts([lastRawPt,rawPt]);
+      var X2=midPt[0];
+      var Y2=midPt[1];
+      var X3=rawPt[0];
+      var Y3=rawPt[1];
+      for (i = -2;i<5;i++) {
+        for (j = -2;j<5;j++) {
+          XX1=(X1+200+i*Ax+j*Bx)*sized;
+          YY1=(Y1+15+i*Ay+j*By)*sized;
+          XX2=(X2+200+i*Ax+j*Bx)*sized;
+          YY2=(Y2+15+i*Ay+j*By)*sized;
+          XX3=(X3+200+i*Ax+j*Bx)*sized;
+          YY3=(Y3+15+i*Ay+j*By)*sized;
+          var M = findMatrix(x1,y1,x2,y2,x3,y3,XX1,YY1,XX2,YY2,XX3,YY3);
+          context.save();
+          context.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
+          context.beginPath();
+          context.moveTo(x1,y1);
+          context.lineTo(x2,y2);
+          context.lineTo(x3,y3);
+          context.closePath();
+          context.clip();
+          context.drawImage(img,0,0,w,h);
+          context.restore();
+        } // end j loop
+      } // end i loop
+
+
+      var X3=lastRawPt[0];
+      var Y3=lastRawPt[1];
+      for (i = -2;i<5;i++) {
+        for (j = -2;j<5;j++) {
+          XX1=(X1+200+i*Ax+j*Bx)*sized;
+          YY1=(Y1+15+i*Ay+j*By)*sized;
+          XX2=(X2+200+i*Ax+j*Bx)*sized;
+          YY2=(Y2+15+i*Ay+j*By)*sized;
+          XX3=(X3+200+i*Ax+j*Bx)*sized;
+          YY3=(Y3+15+i*Ay+j*By)*sized;
+          var M = findMatrix(x1,y1,x2,y2,x3,y3,XX1,YY1,XX2,YY2,XX3,YY3);
+          context.save();
+          context.transform(M[0],M[1],M[2],M[3],M[4],M[5]);
+          context.beginPath();
+          context.moveTo(x1,y1);
+          context.lineTo(x2,y2);
+          context.lineTo(x3,y3);
+          context.closePath();
+          context.clip();
+          context.drawImage(img,0,0,w,h);
+          context.restore();
+        } // end j loop
+      } // end i loop
+
+      lastRawPt = rawPt;
+    }); // end point loop
+
+  }); // end poly loop
 
 }
 
-function loadImage() {
-//  init();
-  var c1 = document.getElementById("myCanvas1");
-  var context1 = c1.getContext("2d");
+function findMatrix(x1,y1,x2,y2,x3,y3,X1,Y1,X2,Y2,X3,Y3) {
+  var denom = (x1-x2)*(y2-y3)-(x2-x3)*(y1-y2);
+  if (denom === 0) {alert("Impossible. Points collinear");}
+  else {
+    var a = ((X1-X2)*(y2-y3)-(X2-X3)*(y1-y2))/denom;
+    var b = ((Y1-Y2)*(y2-y3)-(Y2-Y3)*(y1-y2))/denom;
+    if (y1===y2) {
+      var c = (X2-X3-a*(x2-x3))/(y2-y3);
+      var d = (Y2-Y3-b*(x2-x3))/(y2-y3);
+    }
+    else {
+      var c = (X1-X2-a*(x1-x2))/(y1-y2);
+      var d = (Y1-Y2-b*(x1-x2))/(y1-y2);
+    }
+    var e = X1 - a*x1 - c*y1;
+    var f = Y1 - b*x1 - d*y1;
+  }
+  return([a,b,c,d,e,f]);
+} // end function findMatrix;
 
+function loadImage() {
   img = new Image();
   const file = document.getElementById("loadImage").files[0];
   const reader = new FileReader();
-  init();
-
+  
   reader.addEventListener("load", function () {
     img.onload = function() {
-      img_width = img.width;
-      img_height = img.height;
-  //    context.canvas.width = img.width+100;
-  //    context.canvas.height = img.height+100;
-   //   context.drawImage(img, 0, 0,img_width, img_height);
       draw();
     };
     img.src = reader.result;
@@ -1313,11 +1408,20 @@ function draw() {
   context.fillStyle = "white";
   context.fill();
   context.lineWidth =1;
+
+    if (img) {
+      var c0 = document.getElementById("myCanvas0");
+      var context0 = c0.getContext("2d");
+      var w=img.width;
+      var h=img.height;
+      context0.drawImage(img,0,0,w,h);
+    }
+
   if (getMode.value === "tiles") {drawTiles(context);}
   if (getMode.value === "stars") {drawStars(context);}
   if (getMode.value === "rosettes") {drawRosettes(context);}
   if (getMode.value === "extRoses") {drawExtRoses(context);}
-  if (getMode.value === "mapIm") {drawMapIm(context);}
+  if (getMode.value === "mapIm" && (img)) {drawMapIm(context);}
   if (getMode.value === "weave") {drawWeave(context);}
 
   var slider = document.getElementById("myRange");
