@@ -1197,6 +1197,105 @@ function drawExtRoses(context) {
   }); // end poly loop
 } /* end drawExtRoses */
 
+function drawWeave(context) {
+  context.strokeStyle ="black";
+  tiles.polys.forEach(function(poly) {
+    var center = avePtMap(poly);
+    var n = poly.length;
+    if (n<5) {
+      poly.forEach(function(point) {  
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);   
+        for (i = -2;i<5;i++) {
+          for (j = -2;j<5;j++) {
+            context.moveTo(
+              (rawPt[0]+200+i*Ax+j*Bx)*sized,
+              (rawPt[1]+15+i*Ay+j*By)*sized
+            );
+            context.lineTo(
+              (center[0]+200+i*Ax+j*Bx)*sized,
+              (center[1]+15+i*Ay+j*By)*sized
+            );
+            context.stroke();
+          } /* end j loop */
+        } /* end i loop */
+      }); /* end point loop */
+
+    } //end n < 5
+    else {
+      var lastPt = poly[n-1];
+      var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+      var A = Math.cos(2*Math.PI/n);
+      var lastPt1 = weightPts(center,1-A,lastRawPt,A);
+      poly.forEach(function(point) {    
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);
+        var Pt1 = weightPts(center,1-A,rawPt,A);
+        var Pt2 = avePts([lastPt1, rawPt]);
+
+        for (i = -2;i<5;i++) {
+
+          for (j = -2;j<5;j++) {
+            context.moveTo(
+              (lastPt1[0]+200+i*Ax+j*Bx)*sized,
+              (lastPt1[1]+15+i*Ay+j*By)*sized
+            );
+            context.lineTo(
+              (rawPt[0]+200+i*Ax+j*Bx)*sized,
+              (rawPt[1]+15+i*Ay+j*By)*sized
+            );
+            context.stroke();
+            context.moveTo(
+              (Pt1[0]+200+i*Ax+j*Bx)*sized,
+              (Pt1[1]+15+i*Ay+j*By)*sized
+            );
+            context.lineTo(
+              (Pt2[0]+200+i*Ax+j*Bx)*sized,
+              (Pt2[1]+15+i*Ay+j*By)*sized
+            );
+            context.stroke();
+          } /* end j loop */
+
+        } /* end i loop */
+        lastPt1 = Pt1;
+        lastRawPt = rawPt;
+
+      }); // end point loop
+
+    }; //end n >=5
+  }); // end poly loop
+} /* end drawWeave */
+
+function drawMapIm(context) {
+
+}
+
+function loadImage() {
+//  init();
+  var c1 = document.getElementById("myCanvas1");
+  var context1 = c1.getContext("2d");
+
+  img = new Image();
+  const file = document.getElementById("loadImage").files[0];
+  const reader = new FileReader();
+  init();
+
+  reader.addEventListener("load", function () {
+    img.onload = function() {
+      img_width = img.width;
+      img_height = img.height;
+  //    context.canvas.width = img.width+100;
+  //    context.canvas.height = img.height+100;
+   //   context.drawImage(img, 0, 0,img_width, img_height);
+      draw();
+    };
+    img.src = reader.result;
+  }, false);
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
+
+
 function draw() {
   var getMode = document.querySelector('input[name="mode"]:checked');  
   var c = document.getElementById("myCanvas");
@@ -1211,6 +1310,8 @@ function draw() {
   if (getMode.value === "stars") {drawStars(context);}
   if (getMode.value === "rosettes") {drawRosettes(context);}
   if (getMode.value === "extRoses") {drawExtRoses(context);}
+  if (getMode.value === "mapIm") {drawMapIm(context);}
+  if (getMode.value === "weave") {drawWeave(context);}
 
   var slider = document.getElementById("myRange");
   var output = document.getElementById("demo");
