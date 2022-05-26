@@ -6,7 +6,6 @@ poly = [vertex1, vertex2, ... vertexN]
 halfkiteDeg = [center, vertex1, vertex2, degree of center]
 */
 
-
 var Ax;
 var Ay;
 var Bx;
@@ -544,6 +543,11 @@ function svgToFile(content, filename, contentType) {
   URL.revokeObjectURL(a.href);
 };
 
+function goPng(el) {
+  var c = document.getElementById("myCanvas");
+  var imageURI = c.toDataURL("image/png");
+  el.href = imageURI;
+}
 
 function goSvg() {
   var getMode = document.querySelector('input[name="mode"]:checked');  
@@ -551,6 +555,7 @@ function goSvg() {
   if (getMode.value === "stars") {SVGstars();}
   if (getMode.value === "rosettes") {SVGrosettes();}
   if (getMode.value === "extRoses") {SVGextRoses();}
+  if (getMode.value === "mapIm") {alert("Don't save as SVG. Try to save as PNG.");}
   if (getMode.value === "weave") {SVGweave();}
 }
 
