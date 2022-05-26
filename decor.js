@@ -818,29 +818,34 @@ function SVGextRoses() {
 } /* end SVGextRoses */
 
 function SVGweave() {
+
   var asOutput = '<svg height="600" width="600">\r\n';
   tiles.polys.forEach(function(poly) {
     var center = avePtMap(poly);
     var n = poly.length;
+    var lastPt = poly[n-1];
+    var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+    var newPoly = [];
     if (n<5) {
       poly.forEach(function(point) {  
-        var rawPt = mapping(tiles.pts[point[0]],point[1]);   
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);
+        var Pt1 = avePts([lastRawPt, rawPt]);
+        var Pt2 = weightPts(center,2,Pt1,1);
+        newPoly.push(Pt2);
         for (i = 0;i<3;i++) {
           for (j = 0;j<3;j++) {
             var coords = '<line x1="' + (rawPt[0]+i*Ax+j*Bx) + '" y1="' + (rawPt[1]+i*Ay+j*By) 
-                           + '" x2="' + (center[0]+i*Ax+j*Bx) + '" y2="' + (center[1]+i*Ay+j*By);
+                           + '" x2="' + (Pt2[0]+i*Ax+j*Bx) + '" y2="' + (Pt2[1]+i*Ay+j*By);
             asOutput = asOutput.concat(coords); 
             asOutput = asOutput.concat('" style="stroke:rgb(0,0,0);stroke-width:2" />');
           } /* end j loop */
         } /* end i loop */
+        lastRawPt = rawPt;
       }); /* end point loop */
     } //end n < 5
     else {
-      var lastPt = poly[n-1];
-      var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
       var A = Math.cos(2*Math.PI/n);
       var lastPt1 = weightPts(center,1-A,lastRawPt,A);
-      var newPoly = [];
       poly.forEach(function(point) {    
         var rawPt = mapping(tiles.pts[point[0]],point[1]);
         var Pt1 = weightPts(center,1-A,rawPt,A);
@@ -848,25 +853,25 @@ function SVGweave() {
         newPoly.push(Pt2);
         for (i = 0;i<3;i++) {
           for (j = 0;j<3;j++) {
-            var coords = '<line x1="' + (Pt2[0]+i*Ax+j*Bx) + '" y1="' + (Pt2[1]+i*Ay+j*By) 
-                           + '" x2="' + (rawPt[0]+i*Ax+j*Bx) + '" y2="' + (rawPt[1]+i*Ay+j*By);
+            var coords = '<line x1="' + (rawPt[0]+i*Ax+j*Bx) + '" y1="' + (rawPt[1]+i*Ay+j*By) 
+                           + '" x2="' + (Pt2[0]+i*Ax+j*Bx) + '" y2="' + (Pt2[1]+i*Ay+j*By);
             asOutput = asOutput.concat(coords); 
             asOutput = asOutput.concat('" style="stroke:rgb(0,0,0);stroke-width:2" />');
           } /* end j loop */
         } /* end i loop */
         lastPt1 = Pt1;
       }); // end poly loop
-      for (i = 0;i<3;i++) {
-        for (j = 0;j<3;j++) {
-          asOutput = asOutput.concat('<polygon points="\r\n'); 
-          newPoly.forEach(function(rawPoint) {
-            var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
-            asOutput = asOutput.concat(sPoint);
-          });
-          asOutput = asOutput.concat('" style="fill:white; stroke:black; stroke-width:2" />');
-        } /* end j loop */
-      } /* end i loop */
     }; //end n >=5
+    for (i = 0;i<3;i++) {
+      for (j = 0;j<3;j++) {
+        asOutput = asOutput.concat('<polygon points="\r\n'); 
+        newPoly.forEach(function(rawPoint) {
+          var sPoint = "" + (rawPoint[0]+i*Ax+j*Bx) + "," + (rawPoint[1]+i*Ay+j*By) + "\r\n";
+          asOutput = asOutput.concat(sPoint);
+        });
+        asOutput = asOutput.concat('" style="fill:white; stroke:black; stroke-width:2" />');
+      } /* end j loop */
+    } /* end i loop */
   }); // end poly loop
   asOutput = asOutput.concat('</svg>');
   svgToFile(asOutput,"myTiles","svg");
@@ -1263,30 +1268,34 @@ function drawWeave(context) {
   tiles.polys.forEach(function(poly) {
     var center = avePtMap(poly);
     var n = poly.length;
+    var lastPt = poly[n-1];
+    var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
+    var newPoly = [];
     if (n<5) {
       poly.forEach(function(point) {  
-        var rawPt = mapping(tiles.pts[point[0]],point[1]);   
+        var rawPt = mapping(tiles.pts[point[0]],point[1]);
+        var Pt1 = avePts([lastRawPt, rawPt]);
+        var Pt2 = weightPts(center,2,Pt1,1);
+        newPoly.push(Pt2);
         for (i = -2;i<5;i++) {
           for (j = -2;j<5;j++) {
             context.moveTo(
-              (rawPt[0]+200+i*Ax+j*Bx)*sized,
-              (rawPt[1]+15+i*Ay+j*By)*sized
+              (Pt2[0]+200+i*Ax+j*Bx)*sized,
+              (Pt2[1]+15+i*Ay+j*By)*sized
             );
             context.lineTo(
-              (center[0]+200+i*Ax+j*Bx)*sized,
-              (center[1]+15+i*Ay+j*By)*sized
+              (rawPt[0]+200+i*Ax+j*Bx)*sized,
+              (rawPt[1]+15+i*Ay+j*By)*sized
             );
             context.stroke();
           } /* end j loop */
         } /* end i loop */
+        lastRawPt = rawPt;
       }); /* end point loop */
     } //end n < 5
     else {
-      var lastPt = poly[n-1];
-      var lastRawPt = mapping(tiles.pts[lastPt[0]],lastPt[1]);
       var A = Math.cos(2*Math.PI/n);
       var lastPt1 = weightPts(center,1-A,lastRawPt,A);
-      var newPoly = [];
       poly.forEach(function(point) {    
         var rawPt = mapping(tiles.pts[point[0]],point[1]);
         var Pt1 = weightPts(center,1-A,rawPt,A);
@@ -1307,28 +1316,29 @@ function drawWeave(context) {
         } /* end i loop */
         lastPt1 = Pt1;
       }); // end poly loop
-      for (i = -2;i<5;i++) {
-        for (j = -2;j<5;j++) {
-          context.beginPath();
-          context.strokeStyle ="black";
-          lastPt = newPoly[n-1];
-          context.moveTo(
-            (lastPt[0]+200+i*Ax+j*Bx)*sized,
-            (lastPt[1]+15+i*Ay+j*By)*sized
-          );
-          newPoly.forEach(function(point) {
-            context.lineTo(
-              (point[0]+200+i*Ax+j*Bx)*sized,
-              (point[1]+15+i*Ay+j*By)*sized
-            );
-
-          }); // end newPoly loop
-          context.closePath();
-          context.stroke();
-
-        } /* end j loop */
-      } /* end i loop */
     }; //end n >=5
+
+    for (i = -2;i<5;i++) {
+      for (j = -2;j<5;j++) {
+        context.beginPath();
+        context.strokeStyle ="black";
+        lastPt = newPoly[n-1];
+        context.moveTo(
+          (lastPt[0]+200+i*Ax+j*Bx)*sized,
+          (lastPt[1]+15+i*Ay+j*By)*sized
+        );
+        newPoly.forEach(function(point) {
+          context.lineTo(
+            (point[0]+200+i*Ax+j*Bx)*sized,
+            (point[1]+15+i*Ay+j*By)*sized
+          );
+
+        }); // end newPoly loop
+        context.closePath();
+        context.stroke();
+      } /* end j loop */
+    } /* end i loop */
+
   }); // end poly loop
 } /* end drawWeave */
 
